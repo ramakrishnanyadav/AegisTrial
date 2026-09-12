@@ -26,6 +26,7 @@ const ALLOWLIST = [
   'tsconfig.json',
   'README.md',
   'TESTING.md',
+  'requirements.txt',
   '.github',
   'firestore.rules',
   'Dockerfile',

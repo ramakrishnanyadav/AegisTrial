@@ -20,10 +20,8 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: Install Dependencies (Root & Backend)
-        run: |
-          npm ci
-          npm ci --prefix backend
+      - name: Install Dependencies (Root & Workspaces)
+        run: npm ci
 
       - name: Stage 1 — Static Type Check & Linting
         run: npm run lint

@@ -1,0 +1,4 @@
+# AegisTrial — Governed Clinical Screening Platform
+# Note: AegisTrial is a 100% TypeScript / Node.js codebase.
+# All runtime dependencies and sub-package dependencies are managed via package.json and npm workspaces.
+# To install all dependencies, run: npm install
