@@ -21,7 +21,7 @@ jobs:
           cache: 'npm'
 
       - name: Install Dependencies (Root & Workspaces)
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Stage 1 — Static Type Check & Linting
         run: npm run lint
@@ -30,7 +30,7 @@ jobs:
         run: npm test --prefix backend
 
       - name: Stage 3 — Security Secret Scanner
-        run: npx tsx scripts/check-secrets.ts
+        run: npm run check-secrets
 
       - name: Stage 4 — Deterministic Allowlist Packaging Check
         run: npm run package
