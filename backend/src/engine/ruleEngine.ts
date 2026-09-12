@@ -35,7 +35,7 @@ function parseTemporalWindowMs(window?: string): number | null {
   if (!window) return null;
   const match = window.match(/within\s+(\d+)\s+(day|week|month)/i);
   if (!match) return null;
-  const count = parseInt(match[1]!, 10);
+  const count = Number.parseInt(match[1]!, 10);
   const unit = match[2]!.toLowerCase();
   if (unit === 'day') return count * 24 * 60 * 60 * 1000;
   if (unit === 'week') return count * 7 * 24 * 60 * 60 * 1000;
@@ -69,8 +69,8 @@ function compareValues(
   operator: string,
   threshold: number | string,
 ): boolean {
-  const thresh = typeof threshold === 'string' ? parseFloat(threshold) : threshold;
-  if (isNaN(thresh)) return false;
+  const thresh = typeof threshold === 'string' ? Number.parseFloat(threshold) : threshold;
+  if (Number.isNaN(thresh)) return false;
 
   switch (operator) {
     case '>=': return value >= thresh;
@@ -169,8 +169,8 @@ export function evaluateCriterion(
   const hasNormalizedConflict =
     typeof criterion.threshold === 'number' &&
     normalizedFields.length >= 2 &&
-    normalizedFields.some((f) => (f.convertedValue ?? (typeof f.value === 'number' ? f.value : NaN)) >= (criterion.threshold as number)) &&
-    normalizedFields.some((f) => (f.convertedValue ?? (typeof f.value === 'number' ? f.value : NaN)) < (criterion.threshold as number));
+    normalizedFields.some((f) => (f.convertedValue ?? (typeof f.value === 'number' ? f.value : Number.NaN)) >= (criterion.threshold as number)) &&
+    normalizedFields.some((f) => (f.convertedValue ?? (typeof f.value === 'number' ? f.value : Number.NaN)) < (criterion.threshold as number));
 
   if (resolved.hasConflict || hasNormalizedConflict) {
     return {

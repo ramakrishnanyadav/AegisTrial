@@ -14,7 +14,7 @@ if (fs.existsSync(backendEnvPath)) {
 }
 
 const envSchema = z.object({
-  PORT: z.string().default('3001').transform((val: string) => parseInt(val, 10)),
+  PORT: z.string().default('3001').transform((val: string) => Number.parseInt(val, 10)),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   AUTH_MODE: z.enum(['development', 'production']).default('production'),
   LYZR_API_KEY: z.string().optional().default(''),

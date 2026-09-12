@@ -118,7 +118,7 @@ screeningsRouter.post('/', async (req: Request, res: Response) => {
     redactionResult = await redactAndValidate(patientText);
   } catch (err) {
     if (err instanceof PhiPipelineError) {
-      const screeningStatus = err.isPolicyBlock ? ScreeningStatus.REQUIRES_HUMAN_REVIEW : ScreeningStatus.REQUIRES_HUMAN_REVIEW;
+      const screeningStatus = err.isPolicyBlock ? ScreeningStatus.REQUIRES_HUMAN_REVIEW : ScreeningStatus.SYSTEM_ERROR;
       // Never let PHI failure produce an ELIGIBLE verdict
       const run: ScreeningRun = {
         runId,

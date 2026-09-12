@@ -30,7 +30,7 @@ function sortKeys(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(sortKeys);
   if (typeof value === 'object') {
     const sorted: Record<string, unknown> = {};
-    for (const key of Object.keys(value as Record<string, unknown>).sort()) {
+    for (const key of Object.keys(value as Record<string, unknown>).sort((a, b) => a.localeCompare(b))) {
       const v = (value as Record<string, unknown>)[key];
       if (v !== undefined) {
         // undefined → omit (never write undefined as null)
@@ -41,7 +41,7 @@ function sortKeys(value: unknown): unknown {
   }
   if (typeof value === 'number') {
     // Canonical decimal notation, max 15 significant digits
-    return parseFloat(value.toPrecision(15));
+    return Number.parseFloat(value.toPrecision(15));
   }
   return value;
 }

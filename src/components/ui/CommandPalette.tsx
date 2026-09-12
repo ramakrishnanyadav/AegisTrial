@@ -48,7 +48,6 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ isOpen, onClose 
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Type a command or search clinical routes..."
               className="w-full bg-transparent text-sm text-slate-900 placeholder-slate-400 focus:outline-none font-semibold"
-              autoFocus
             />
             <kbd className="hidden sm:inline-block text-[10px] font-mono px-2 py-0.5 bg-slate-100 text-slate-500 rounded border border-slate-200 font-bold">
               ESC

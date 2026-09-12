@@ -17,7 +17,7 @@ import { getDb } from './db/database.js';
 import { agentRegistry } from './lyzr/index.js';
 import { processOutbox } from './aims/outbox.js';
 
-const PORT = parseInt(
+const PORT = Number.parseInt(
   process.env['BACKEND_PORT'] ??
     (process.env['NODE_ENV'] === 'production' ? process.env['PORT'] ?? '3000' : '3001'),
   10,

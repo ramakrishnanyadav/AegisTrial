@@ -56,19 +56,21 @@ export const firestore: Firestore = getFirestore(app);
 export const auth: Auth = getAuth(app);
 
 // Google Analytics (Initialized conditionally with frame/SSR guards)
-export let analytics: Analytics | null = null;
+let analyticsInstance: Analytics | null = null;
 if (typeof window !== "undefined") {
   isSupported()
     .then((supported) => {
       if (supported) {
-        analytics = getAnalytics(app);
+        analyticsInstance = getAnalytics(app);
       }
     })
     .catch(() => {
       // Benign fallback if Google Analytics cookies are blocked in sandboxed iframe
-      analytics = null;
+      analyticsInstance = null;
     });
 }
+
+export const getAnalyticsInstance = (): Analytics | null => analyticsInstance;
 
 /**
  * Strict Undefined-Stripping (Zero-Crash Payload Hygiene)
