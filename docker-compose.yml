@@ -1,0 +1,47 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      # Lyzr Agent API — required
+      LYZR_API_KEY: ${LYZR_API_KEY}
+      LYZR_CRITERIA_AGENT_ID: ${LYZR_CRITERIA_AGENT_ID:-}
+      LYZR_EVIDENCE_AGENT_ID: ${LYZR_EVIDENCE_AGENT_ID:-}
+      LYZR_SAFETY_AGENT_ID: ${LYZR_SAFETY_AGENT_ID:-}
+      LYZR_ONTOLOGY_AGENT_ID: ${LYZR_ONTOLOGY_AGENT_ID:-}
+      LYZR_DOSSIER_AGENT_ID: ${LYZR_DOSSIER_AGENT_ID:-}
+      # Firebase
+      FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID}
+      FIREBASE_ADMIN_KEY_JSON: ${FIREBASE_ADMIN_KEY_JSON:-}
+      # AIMS (leave empty for built-in simulated sink)
+      AIMS_ENDPOINT: ${AIMS_ENDPOINT:-}
+      AIMS_SIMULATE_503: ${AIMS_SIMULATE_503:-false}
+      # App
+      PORT: 3000
+      NODE_ENV: production
+      AEGIS_DB_PATH: /data/aegistrial.db
+    volumes:
+      # SQLite database persisted across container restarts
+      - aegis_data:/data
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+
+volumes:
+  aegis_data:
+    driver: local
+
+# Notes:
+# - SQLite file is persisted via aegis_data volume.
+# - No separate DB container — SQLite provides transactional ACID semantics
+#   sufficient for single-instance P0 demo. Swap for PostgreSQL for production.
+# - AIMS_ENDPOINT left empty defaults to built-in simulated sink (NOT FDA).
+# - Run: docker compose up --build
+# - Dev with live reload: use npm run dev at repo root instead.

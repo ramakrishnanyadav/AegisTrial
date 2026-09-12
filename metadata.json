@@ -1,0 +1,6 @@
+{
+  "name": "AegisTrial - Governed Clinical Trial Screening & Audit Agent",
+  "description": "Where AI extracts and proposes; deterministic gates adjudicate. 21 CFR Part 11-oriented audit trail preventing LLM errors from propagating into trial eligibility verdicts.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

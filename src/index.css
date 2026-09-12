@@ -1,0 +1,145 @@
+@import "tailwindcss";
+
+@theme {
+  --color-surface: #f7f9fd;
+  --color-surface-dim: #e6edfa;
+  --color-surface-bright: #ffffff;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f1f5fd;
+  --color-surface-container: #e8effb;
+  --color-surface-container-high: #deebfa;
+  --color-surface-container-highest: #d2e4f8;
+  --color-on-surface: #0f1c2e;
+  --color-on-surface-variant: #4b586e;
+  --color-primary: #0f172a;
+  --color-on-primary: #ffffff;
+  --color-secondary: #059669;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #d1fae5;
+  --color-on-secondary-container: #065f46;
+  --color-accent-blue: #2563eb;
+  --color-accent-indigo: #4f46e5;
+  --color-accent-amber: #d97706;
+  --color-error: #dc2626;
+  --color-on-error: #ffffff;
+  --color-error-container: #fee2e2;
+  --color-on-error-container: #991b1b;
+
+  --font-headline-xl: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-headline-lg: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-headline-md: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-headline-sm: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-body-lg: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-body-md: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-body-sm: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-label-mono-lg: "JetBrains Mono", ui-monospace, monospace;
+  --font-label-mono-md: "JetBrains Mono", ui-monospace, monospace;
+  --font-label-mono-sm: "JetBrains Mono", ui-monospace, monospace;
+}
+
+@layer base {
+  html, body {
+    min-height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #f8fafc;
+    color: #0f172a;
+    font-family: var(--font-body-md);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body {
+    overscroll-behavior-y: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+}
+
+/* Glassmorphism Design System Tokens */
+/* Pure White Clinical Design System */
+.clinical-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05), 0 1px 3px rgba(15, 23, 42, 0.03);
+}
+
+.clinical-card-hover {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.clinical-card-hover:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 10px 30px -4px rgba(15, 23, 42, 0.08);
+  transform: translateY(-2px);
+}
+
+.glass-panel-white {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 4px 24px -2px rgba(15, 23, 42, 0.06);
+}
+
+.glass-pill {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+/* Mesh gradient backdrop */
+.mesh-gradient-canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+  background-color: #f8fafc;
+}
+
+.mesh-orb-1 {
+  position: absolute;
+  top: -15%;
+  left: 15%;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.09) 0%, rgba(59, 130, 246, 0) 70%);
+  filter: blur(40px);
+}
+
+.mesh-orb-2 {
+  position: absolute;
+  top: 25%;
+  right: -5%;
+  width: 700px;
+  height: 700px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, rgba(16, 185, 129, 0) 70%);
+  filter: blur(50px);
+}
+
+.mesh-orb-3 {
+  position: absolute;
+  bottom: -10%;
+  left: 30%;
+  width: 650px;
+  height: 650px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.07) 0%, rgba(99, 102, 241, 0) 70%);
+  filter: blur(45px);
+}
+
+/* Hide scrollbar for horizontal chips */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

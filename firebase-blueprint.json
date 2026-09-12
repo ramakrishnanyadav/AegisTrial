@@ -1,0 +1,69 @@
+{
+  "entities": {
+    "users": {
+      "title": "Clinical Trial Users & Investigators",
+      "description": "Registered clinical investigators, auditors, coordinators, and monitors with 21 CFR Part 11 electronic signature credentials",
+      "fields": {
+        "id": { "type": "string", "description": "User UID matching auth.uid" },
+        "name": { "type": "string", "description": "Full name and credentials" },
+        "email": { "type": "string", "description": "Institutional email address" },
+        "role": { "type": "string", "description": "Role: PI, AUDITOR, CRC, or MONITOR" },
+        "roleTitle": { "type": "string", "description": "Full clinical title" },
+        "institution": { "type": "string", "description": "Associated clinical research institute" },
+        "npiNumber": { "type": "string", "description": "National Provider Identifier if applicable" },
+        "keyFingerprint": { "type": "string", "description": "SHA-256 digital signature key fingerprint" },
+        "provider": { "type": "string", "description": "Auth provider: google, github, chrome, institutional, or password" },
+        "createdAt": { "type": "string", "description": "ISO timestamp of account creation" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp of last update" }
+      }
+    },
+    "screenings": {
+      "title": "Patient Protocol Eligibility Screenings",
+      "description": "Adjudicated clinical trial eligibility records signed by qualified investigators",
+      "fields": {
+        "id": { "type": "string", "description": "Unique screening run identifier" },
+        "patientId": { "type": "string", "description": "De-identified patient synthetic ID" },
+        "protocolId": { "type": "string", "description": "Clinical protocol reference code" },
+        "status": { "type": "string", "description": "ELIGIBLE, INELIGIBLE, or PENDING_REVIEW" },
+        "confidence": { "type": "number", "description": "Adjudication confidence score (0-1)" },
+        "findings": { "type": "string", "description": "Summary rationale and extracted evidence" },
+        "signatureDigest": { "type": "string", "description": "SHA-256 signature hash under 21 CFR §11.100" },
+        "signedBy": { "type": "string", "description": "Investigator user ID" },
+        "timestamp": { "type": "string", "description": "ISO timestamp of screening run" }
+      }
+    },
+    "audit_logs": {
+      "title": "21 CFR Part 11 Audit Trail",
+      "description": "Immutable, cryptographically chained audit events for clinical regulatory oversight",
+      "fields": {
+        "id": { "type": "string", "description": "Unique log entry identifier" },
+        "timestamp": { "type": "string", "description": "ISO timestamp of action" },
+        "event": { "type": "string", "description": "Action category: SCREENING, SIGNATURE, AUTH, CONFIG, ATTACK_RUN" },
+        "action": { "type": "string", "description": "Human-readable description of the operation" },
+        "userId": { "type": "string", "description": "Actor user identifier" },
+        "userRole": { "type": "string", "description": "Role of the executing persona" },
+        "details": { "type": "string", "description": "Structured details or JSON payload" },
+        "hash": { "type": "string", "description": "Cryptographic hash of the current log entry" },
+        "previousHash": { "type": "string", "description": "Cryptographic hash of the preceding entry in the chain" }
+      }
+    },
+    "attack_benchmarks": {
+      "title": "Adversarial Robustness Test Runs",
+      "description": "Results of the 6-attack adversarial testing chamber for model security verification",
+      "fields": {
+        "id": { "type": "string", "description": "Benchmark run identifier" },
+        "testId": { "type": "string", "description": "Attack vector identifier" },
+        "attackType": { "type": "string", "description": "Prompt Injection, Missing Evidence, Unit Mismatch, etc." },
+        "passed": { "type": "boolean", "description": "Whether the defensive guardrail held" },
+        "latencyMs": { "type": "number", "description": "Execution latency in milliseconds" },
+        "timestamp": { "type": "string", "description": "ISO timestamp of test execution" }
+      }
+    }
+  },
+  "roles": {
+    "PI": "Principal Investigator with full electronic signature authority",
+    "AUDITOR": "Regulatory compliance auditor with read access to all audit logs and replay verification",
+    "CRC": "Clinical research coordinator with patient data entry and screening prep permissions",
+    "MONITOR": "Independent clinical monitor overseeing trial data integrity"
+  }
+}

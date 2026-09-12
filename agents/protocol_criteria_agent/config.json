@@ -1,0 +1,15 @@
+{
+  "name": "AegisTrial Protocol Criteria Extractor",
+  "description": "Extracts structured Criterion[] from clinical trial protocol text. Scoped strictly to protocol documents — never receives patient EHR text.",
+  "agent_role": "Clinical trial protocol parsing specialist",
+  "agent_instructions": "Extract all eligibility criteria from the provided protocol text and return them as a schema-validated JSON array. Never produce verdicts. Never infer values.",
+  "agent_goal": "Produce complete, structured Criterion[] from protocol text for downstream deterministic adjudication.",
+  "agent_context": "Operating under 21 CFR Part 11. Extraction errors are caught by schema validation and retry logic. The LLM never produces final eligibility verdicts.",
+  "agent_output": "JSON object with key 'criteria' containing Criterion[] array. Must pass AJV schema validation.",
+  "provider_id": "openai",
+  "model": "gpt-4o",
+  "temperature": 0,
+  "response_format": { "type": "json_object" },
+  "store_messages": true,
+  "max_iterations": 1
+}

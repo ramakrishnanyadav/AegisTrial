@@ -1,0 +1,38 @@
+name: AegisTrial STQA CI Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  stqa-build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies (Root & Backend)
+        run: |
+          npm ci
+          npm ci --prefix backend
+
+      - name: Stage 1 — Static Type Check & Linting
+        run: npm run lint
+
+      - name: Stage 2 — Invariant, Unit & Chaos Test Suites
+        run: npm test --prefix backend
+
+      - name: Stage 3 — Security Secret Scanner
+        run: npx tsx scripts/check-secrets.ts
+
+      - name: Stage 4 — Deterministic Allowlist Packaging Check
+        run: npm run package

@@ -1,0 +1,42 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // User profiles & credentials
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(userId);
+    }
+
+    // Patient eligibility screenings (Backend Admin SDK writes only, client read-only)
+    match /screenings/{screeningId} {
+      allow read: if isAuthenticated();
+      allow write: if false;
+    }
+
+    // 21 CFR Part 11 Audit Trail — Immutable log (Backend Admin SDK writes only)
+    match /audit_logs/{logId} {
+      allow read: if isAuthenticated();
+      allow write: if false;
+    }
+
+    // Adversarial benchmark testing results
+    match /attack_benchmarks/{benchmarkId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
+    // Fallback default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
