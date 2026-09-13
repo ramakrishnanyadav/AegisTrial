@@ -9,6 +9,7 @@ COPY tsconfig.json ./
 COPY index.html ./
 COPY src/ ./src/
 COPY public/ ./public/
+COPY shared/ ./shared/
 
 RUN npm ci --ignore-scripts
 RUN npm run build
@@ -21,6 +22,8 @@ COPY backend/package.json ./
 COPY backend/package-lock.json* ./
 COPY backend/tsconfig.json ./
 COPY backend/src/ ./src/
+COPY backend/migrations/ ./migrations/
+COPY shared/ /app/shared/
 
 RUN npm ci --ignore-scripts
 RUN npm run build
