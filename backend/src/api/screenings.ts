@@ -55,11 +55,16 @@ export const screeningsRouter = Router();
 // ---------------------------------------------------------------------------
 // POST /api/screenings
 // ---------------------------------------------------------------------------
+interface IdempotencyCheckResult {
+  conflict?: IdempotencyConflictError | undefined;
+  originalRun?: ScreeningRun | null | undefined;
+}
+
 function checkIdempotency(
   idempotencyKey: string,
   patientId: string,
   protocolId: string,
-): { conflict?: IdempotencyConflictError; originalRun?: ReturnType<typeof getScreeningRun> } {
+): IdempotencyCheckResult {
   const existing = getIdempotencyKey(idempotencyKey);
   if (!existing) return {};
 
@@ -85,7 +90,7 @@ function checkIdempotency(
   }
 
   const originalRun = getScreeningRun(existing.run_id);
-  return { originalRun: originalRun ?? undefined };
+  return { originalRun };
 }
 
 screeningsRouter.post('/', async (req: Request, res: Response) => {
