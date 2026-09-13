@@ -33,7 +33,6 @@ WORKDIR /app
 # Backend & dependencies
 COPY --from=backend-builder --chown=node:node /app/backend/dist ./backend/dist
 COPY --from=backend-builder --chown=node:node /app/node_modules ./node_modules
-COPY --from=backend-builder --chown=node:node /app/backend/node_modules ./backend/node_modules
 COPY --from=backend-builder --chown=node:node /app/backend/package.json ./backend/
 COPY --from=backend-builder --chown=node:node /app/package.json ./
 COPY --chown=node:node backend/src/db/schema.sql ./backend/src/db/
