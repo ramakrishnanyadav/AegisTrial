@@ -9,6 +9,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
+import AdmZip from 'adm-zip';
 
 const ALLOWLIST = [
   'src',
@@ -40,6 +41,36 @@ const ALLOWLIST = [
   'metadata.json',
 ];
 
+function shouldExclude(relPath: string): boolean {
+  const norm = relPath.replaceAll('\\', '/');
+  if (norm.startsWith('.env') || norm.includes('/.env')) return true;
+  if (norm.includes('node_modules')) return true;
+  if (norm.includes('/dist/') || norm.endsWith('/dist') || norm === 'dist' || norm === 'backend/dist') return true;
+  if (norm.includes('.git')) return true;
+  if (norm.endsWith('.db') || norm.endsWith('.db-shm') || norm.endsWith('.db-wal')) return true;
+  if (norm === 'aegistrial.zip') return true;
+  return false;
+}
+
+function addPathToZip(zip: AdmZip, rootDir: string, relPath: string): void {
+  const fullPath = path.join(rootDir, relPath);
+  if (!fs.existsSync(fullPath)) return;
+
+  const stat = fs.statSync(fullPath);
+  if (stat.isFile()) {
+    if (!shouldExclude(relPath)) {
+      const content = fs.readFileSync(fullPath);
+      zip.addFile(relPath.replaceAll('\\', '/'), content);
+    }
+  } else if (stat.isDirectory()) {
+    const entries = fs.readdirSync(fullPath);
+    for (const entry of entries) {
+      const childRelPath = path.join(relPath, entry);
+      addPathToZip(zip, rootDir, childRelPath);
+    }
+  }
+}
+
 function buildZip(): void {
   const rootDir = process.cwd();
   const targetZip = path.join(rootDir, 'aegistrial.zip');
@@ -56,29 +87,14 @@ function buildZip(): void {
     fs.unlinkSync(targetZip);
   }
 
-  const existingAllowlist = ALLOWLIST.filter((p) => fs.existsSync(path.resolve(rootDir, p)));
-
   console.log('[Package] Building aegistrial.zip from explicit allowlist...');
+  const zip = new AdmZip();
 
-  const excludeArgs = [
-    '--exclude=aegistrial.zip',
-    '--exclude=.env',
-    '--exclude=.env.*',
-    '--exclude=backend/.env',
-    '--exclude=node_modules',
-    '--exclude=backend/node_modules',
-    '--exclude=.git',
-    '--exclude=dist',
-    '--exclude=backend/dist',
-    '--exclude=*.db',
-    '--exclude=*.db-shm',
-    '--exclude=*.db-wal',
-    '--exclude=backend/*.db*',
-  ];
+  for (const item of ALLOWLIST) {
+    addPathToZip(zip, rootDir, item);
+  }
 
-  const tarCmd = `tar -a -c -f aegistrial.zip ${excludeArgs.join(' ')} ${existingAllowlist.join(' ')}`;
-  
-  execSync(tarCmd, { cwd: rootDir, stdio: 'inherit' });
+  zip.writeZip(targetZip);
 
   if (fs.existsSync(targetZip)) {
     const stat = fs.statSync(targetZip);
@@ -90,3 +106,4 @@ function buildZip(): void {
 }
 
 buildZip();
+
