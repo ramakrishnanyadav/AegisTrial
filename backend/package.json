@@ -10,6 +10,7 @@
     "test": "node --experimental-vm-modules ../node_modules/jest/bin/jest.js --testPathPattern=tests --forceExit",
     "test:invariants": "node --experimental-vm-modules ../node_modules/jest/bin/jest.js --testPathPattern=tests/invariants --forceExit",
     "test:phi": "node --experimental-vm-modules ../node_modules/jest/bin/jest.js --testPathPattern=tests/phi --forceExit",
+    "migrate": "tsx src/db/migrator.ts",
     "lint": "tsc --noEmit"
   },
   "dependencies": {

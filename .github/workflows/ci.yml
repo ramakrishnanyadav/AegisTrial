@@ -1,4 +1,4 @@
-name: AegisTrial STQA CI Pipeline
+name: AegisTrial Quality & Safety Gate
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ main, master ]
 
 jobs:
-  stqa-build-and-test:
+  quality-gate:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,13 +24,26 @@ jobs:
         run: npm ci --ignore-scripts
 
       - name: Stage 1 — Static Type Check & Linting
-        run: npm run lint
+        run: |
+          npm run lint
+          npm run --prefix backend lint
 
-      - name: Stage 2 — Invariant, Unit & Chaos Test Suites
-        run: npm test --prefix backend
-
-      - name: Stage 3 — Security Secret Scanner
+      - name: Stage 2 — Security Secret Scanner
         run: npm run check-secrets
 
-      - name: Stage 4 — Deterministic Allowlist Packaging Check
+      - name: Stage 3 — Invariant, Unit & Chaos Test Suites
+        run: npm test --prefix backend
+
+      - name: Stage 4 — Production Build
+        run: npm run build
+
+      - name: Stage 5 — Deterministic Allowlist Packaging Check
         run: npm run package
+
+      - name: Stage 6 — Verify Packaged Artifact Contains Test Suite
+        run: |
+          unzip -l aegistrial.zip | grep -q "backend/tests/invariants" || (echo "❌ Tests missing from packaged zip!" && exit 1)
+          echo "✅ Package artifact test suite verification passed."
+
+      - name: Stage 7 — Docker Build Verification
+        run: docker build -t aegistrial:latest .

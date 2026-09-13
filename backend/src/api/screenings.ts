@@ -292,6 +292,55 @@ screeningsRouter.get('/:runId/verify', async (req: Request, res: Response) => {
 });
 
 // ---------------------------------------------------------------------------
+// D.2 Public No-Login Hash Verification Endpoint: GET /api/public/verify/:artifactHash
+// ---------------------------------------------------------------------------
+screeningsRouter.get('/public/verify/:artifactHash', async (req: Request, res: Response) => {
+  const artifactHash = req.params['artifactHash'] ?? '';
+  const runs = listRecentScreeningRuns(50);
+  for (const run of runs) {
+    const matchedProof = run.decisionProof.find((p) => p.artifactHash === artifactHash);
+    if (matchedProof) {
+      res.json({
+        verified: true,
+        artifactHash,
+        algorithm: 'sha256',
+        criterionId: matchedProof.criterionId,
+        reasonCode: matchedProof.reasonCode,
+        policyResult: matchedProof.policyResult,
+        timestampUtc: run.timestampUtc,
+        auditIntegrity: 'BITWISE_MATCH',
+        phiRedacted: true,
+      });
+      return;
+    }
+  }
+  res.status(404).json({ verified: false, error: 'HASH_NOT_FOUND', message: 'No decision proof matches the provided SHA-256 artifact hash' });
+});
+
+// ---------------------------------------------------------------------------
+// D.5 Synthetic FHIR Generator Endpoint: GET /api/fixtures/fhir/:patientId
+// ---------------------------------------------------------------------------
+screeningsRouter.get('/fixtures/fhir/:patientId?', async (req: Request, res: Response) => {
+  const { generateFhirBundle } = await import('../../../shared/fixtures/patients.js');
+  const patientId = req.params['patientId'] || 'PAT-001';
+  res.json(generateFhirBundle(patientId));
+});
+
+// ---------------------------------------------------------------------------
+// D.3 HITL Confidence Webhook Receptor: POST /api/webhooks/hitl
+// ---------------------------------------------------------------------------
+screeningsRouter.post('/webhooks/hitl', (req: Request, res: Response) => {
+  const { runId, criterionId, reasonCode } = req.body;
+  res.json({
+    status: 'RECEIVED',
+    runId: runId || 'UNKNOWN',
+    criterionId: criterionId || 'NONE',
+    reasonCode: reasonCode || 'HUMAN_REVIEW_REQUIRED',
+    dispatchedAt: new Date().toISOString(),
+  });
+});
+
+// ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 

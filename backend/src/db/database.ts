@@ -115,11 +115,16 @@ function seedDefaultProtocols(db: Database.Database): void {
   console.log('[DB] Seeding default protocols completed.');
 }
 
+import { runMigrations } from './migrator.js';
+
 export function getDb(): Database.Database {
   if (!_db) {
     _db = new Database(DB_PATH, { verbose: process.env['NODE_ENV'] === 'development' ? console.log : undefined });
 
-    // Apply schema
+    // Apply schema via versioned migrations
+    runMigrations(_db);
+
+    // Apply legacy schema sync for existing table compatibility
     const schema = fs.readFileSync(SCHEMA_PATH, 'utf-8');
     _db.exec(schema);
 

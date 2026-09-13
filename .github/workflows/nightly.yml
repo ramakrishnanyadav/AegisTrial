@@ -1,0 +1,32 @@
+name: AegisTrial Nightly STQA & E2E Security Suite
+
+on:
+  schedule:
+    - cron: '0 2 * * *' # Every night at 02:00 UTC
+  workflow_dispatch:
+
+jobs:
+  nightly-stqa-suite:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Secret Scan Verification
+        run: npm run check-secrets
+
+      - name: Full Invariant & Chaos Suite
+        run: npm test --prefix backend
+
+      - name: Build Verification
+        run: npm run build

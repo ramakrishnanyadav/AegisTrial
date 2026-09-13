@@ -183,6 +183,80 @@ Notes: Evaluated against zero-criteria protocol configuration.
   history: [],
 };
 
+export const PATIENT_09_FHIR_SYNTHETIC: PatientRecordFixture = {
+  patientId: 'PAT-009-FHIR-SYNTHETIC',
+  name: 'FHIR R4 Synthetic Patient Resource',
+  rawEhrText: `
+PATIENT RECORD - SYNTHETIC FHIR BUNDLE RESOURCE
+Resource: Patient/PAT-009-FHIR-SYNTHETIC
+Demographics: Male, DOB 1974-03-15.
+Observation/4548-4 (HbA1c): 8.2 %
+Observation/33914-3 (eGFR): 45 mL/min/1.73m2
+Condition/E11.9: Active Type 2 Diabetes Mellitus
+  `.trim(),
+  demographics: { age: 52, gender: 'M' },
+  labs: [
+    { code: '4548-4', name: 'HbA1c', value: 8.2, unit: '%', date: '2026-03-01' },
+    { code: '33914-3', name: 'eGFR', value: 45, unit: 'mL/min/1.73m2', date: '2026-03-01' },
+  ],
+  history: [],
+};
+
+export function generateFhirBundle(patientId: string = 'PAT-001'): Record<string, unknown> {
+  return {
+    resourceType: 'Bundle',
+    type: 'collection',
+    id: `bundle-${patientId}`,
+    timestamp: new Date().toISOString(),
+    entry: [
+      {
+        resource: {
+          resourceType: 'Patient',
+          id: patientId,
+          active: true,
+          gender: 'male',
+          birthDate: '1974-03-15',
+        },
+      },
+      {
+        resource: {
+          resourceType: 'Observation',
+          id: `obs-hba1c-${patientId}`,
+          status: 'final',
+          code: {
+            coding: [{ system: 'http://loinc.org', code: '4548-4', display: 'Hemoglobin A1c' }],
+          },
+          subject: { reference: `Patient/${patientId}` },
+          valueQuantity: { value: 8.2, unit: '%', system: 'http://unitsofmeasure.org', code: '%' },
+          effectiveDateTime: '2026-03-01T10:00:00Z',
+        },
+      },
+      {
+        resource: {
+          resourceType: 'Observation',
+          id: `obs-egfr-${patientId}`,
+          status: 'final',
+          code: {
+            coding: [{ system: 'http://loinc.org', code: '33914-3', display: 'eGFR' }],
+          },
+          subject: { reference: `Patient/${patientId}` },
+          valueQuantity: { value: 45, unit: 'mL/min/1.73m2', system: 'http://unitsofmeasure.org', code: 'mL/min/1.73m2' },
+          effectiveDateTime: '2026-03-01T10:00:00Z',
+        },
+      },
+      {
+        resource: {
+          resourceType: 'Condition',
+          id: `cond-t2d-${patientId}`,
+          clinicalStatus: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/condition-clinical', code: 'active' }] },
+          code: { coding: [{ system: 'http://hl7.org/fhir/sid/icd-10-cm', code: 'E11.9', display: 'Type 2 diabetes mellitus' }] },
+          subject: { reference: `Patient/${patientId}` },
+        },
+      },
+    ],
+  };
+}
+
 export const DEMO_PATIENTS: PatientRecordFixture[] = [
   PATIENT_01_ELIGIBLE,
   PATIENT_02_CONTRADICTORY_TIMELINE,
@@ -192,4 +266,5 @@ export const DEMO_PATIENTS: PatientRecordFixture[] = [
   PATIENT_06_TEMPORAL_MISSING,
   PATIENT_07_INJECTION_ADVANCED,
   PATIENT_08_ZERO_CRITERIA,
+  PATIENT_09_FHIR_SYNTHETIC,
 ];
