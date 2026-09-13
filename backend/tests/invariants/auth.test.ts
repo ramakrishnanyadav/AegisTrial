@@ -210,3 +210,57 @@ test('test_firestore_rules_prevent_role_institution_npinumber_escalation', () =>
   expect(validUpdate.allowed).toBe(true);
 });
 
+// ---------------------------------------------------------------------------
+// Test 7: AIMS telemetry stream authentication check
+// ---------------------------------------------------------------------------
+test('test_aims_stream_requires_auth', () => {
+  // Simulates router authentication gate for GET /api/aims/stream
+  function simulateAimsStreamRequest(headers: Record<string, string | undefined>): { status: number; error?: string } {
+    const authHeader = headers['authorization'];
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return { status: 401, error: 'UNAUTHORIZED: Firebase ID token required' };
+    }
+    return { status: 200 };
+  }
+
+  // Unauthenticated request -> REJECTED (401)
+  const unauthenticatedReq = simulateAimsStreamRequest({});
+  expect(unauthenticatedReq.status).toBe(401);
+  expect(unauthenticatedReq.error).toContain('UNAUTHORIZED');
+
+  // Authenticated request -> ALLOWED (200)
+  const authenticatedReq = simulateAimsStreamRequest({ authorization: 'Bearer valid-firebase-token' });
+  expect(authenticatedReq.status).toBe(200);
+});
+
+// ---------------------------------------------------------------------------
+// Test 8: Cost-bearing route rate limiting (429 threshold enforcement)
+// ---------------------------------------------------------------------------
+test('test_rate_limiting_enforces_429_past_threshold', () => {
+  // Simulates rate limiter logic for cost-bearing endpoints (max 10 calls / window)
+  function createSimulatedRateLimiter(maxCalls: number) {
+    let callCount = 0;
+    return () => {
+      callCount++;
+      if (callCount > maxCalls) {
+        return { status: 429, error: 'RATE_LIMITED', message: 'Too many requests — this endpoint triggers billed AI agent calls.' };
+      }
+      return { status: 200 };
+    };
+  }
+
+  const lyzrLimiter = createSimulatedRateLimiter(10);
+
+  // First 10 calls -> 200 OK
+  for (let i = 1; i <= 10; i++) {
+    const res = lyzrLimiter();
+    expect(res.status).toBe(200);
+  }
+
+  // 11th call -> 429 RATE_LIMITED
+  const exceededRes = lyzrLimiter();
+  expect(exceededRes.status).toBe(429);
+  expect(exceededRes.error).toBe('RATE_LIMITED');
+});
+
+

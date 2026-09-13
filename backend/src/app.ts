@@ -1,18 +1,18 @@
 /**
  * app.ts — Express application setup.
- * Mounts all routers and middleware.
+ * Mounts all routers, rate limiters, and authentication middleware.
  */
 
 import express from 'express';
+import rateLimit from 'express-rate-limit';
 import { screeningsRouter } from './api/screenings.js';
 import { attacksRouter } from './api/attacks.js';
 import { protocolsRouter } from './api/protocols.js';
+import { aimsRouter } from './api/aims.js';
 import { aimsMockRouter } from './aims/mockSink.js';
 import { verifyFirebaseToken } from './auth/firebaseAdmin.js';
 import { DEMO_PATIENTS } from '../../shared/fixtures/patients.js';
-import { listAllOutboxRows } from './db/repository.js';
 import { config } from './config/index.js';
-
 import { structuredLoggingMiddleware } from './middleware/logging.js';
 
 export function createApp(): express.Application {
@@ -20,6 +20,26 @@ export function createApp(): express.Application {
 
   app.use(express.json({ limit: '2mb' }));
   app.use(structuredLoggingMiddleware);
+
+  // Rate Limiting Policy
+  // 1. Strict limiter for cost-bearing endpoints triggering billed Lyzr LLM calls
+  const lyzrCallLimiter = rateLimit({
+    windowMs: 60_000,
+    limit: 10,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'RATE_LIMITED', message: 'Too many requests — this endpoint triggers billed AI agent calls.' },
+    skip: () => process.env['NODE_ENV'] === 'test', // Skip in automated test runs unless explicitly tested
+  });
+
+  // 2. General limiter for standard query & telemetry endpoints
+  const generalLimiter = rateLimit({
+    windowMs: 60_000,
+    limit: 60,
+    standardHeaders: true,
+    legacyHeaders: false,
+    skip: () => process.env['NODE_ENV'] === 'test',
+  });
 
   // Health check (unauthenticated)
   app.get('/health', (_req, res) => {
@@ -62,47 +82,16 @@ export function createApp(): express.Application {
     res.json(DEMO_PATIENTS);
   });
 
-  // AIMS telemetry audit stream (reads real persisted SQLite outbox rows)
-  app.get('/api/aims/stream', (_req: express.Request, res: express.Response) => {
-    try {
-      const rows = listAllOutboxRows(50);
-      const events = rows.map((r) => {
-        let payload: any = {};
-        try {
-          payload = JSON.parse(r.event_json);
-        } catch {
-          payload = {};
-        }
-        return {
-          id: r.id,
-          runId: r.run_id,
-          eventType: r.event_type,
-          status: r.status,
-          outboxStatus: r.status,
-          attempts: r.attempts,
-          maxAttempts: r.max_attempts,
-          nextRetryAt: r.next_retry_at,
-          deliveredAt: r.delivered_at,
-          createdAt: r.created_at,
-          timestamp: r.created_at,
-          ...payload,
-        };
-      });
-      res.json(events);
-    } catch (err: any) {
-      res.status(500).json({ error: 'STREAM_ERROR', message: err?.message || 'Failed to fetch AIMS stream' });
-    }
-  });
-
   // AIMS mock sink (gated: demo/test environment only, not exposed in production)
   if (config.NODE_ENV !== 'production') {
     app.use('/api/aims/_mock', aimsMockRouter);
   }
 
-  // Protected routes — require Firebase ID token
-  app.use('/api/screenings', verifyFirebaseToken, screeningsRouter);
-  app.use('/api/attacks', verifyFirebaseToken, attacksRouter);
-  app.use('/api/protocols', verifyFirebaseToken, protocolsRouter);
+  // Protected & Rate-Limited API Routes — require Firebase ID token
+  app.use('/api/screenings', verifyFirebaseToken, lyzrCallLimiter, screeningsRouter);
+  app.use('/api/protocols', verifyFirebaseToken, lyzrCallLimiter, protocolsRouter);
+  app.use('/api/attacks', verifyFirebaseToken, generalLimiter, attacksRouter);
+  app.use('/api/aims', verifyFirebaseToken, generalLimiter, aimsRouter);
 
   // Standard Error handler with consistent error envelope shape
   app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
