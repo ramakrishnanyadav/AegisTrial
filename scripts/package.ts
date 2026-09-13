@@ -30,6 +30,7 @@ const ALLOWLIST = [
   'TESTING.md',
   'CONTRIBUTING.md',
   'DATA_ARCHITECTURE.md',
+  'CHANGELOG.md',
   'requirements.txt',
   '.github',
   'firestore.rules',
