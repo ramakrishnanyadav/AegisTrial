@@ -34,16 +34,34 @@ jobs:
       - name: Stage 3 — Invariant, Unit & Chaos Test Suites
         run: npm test --prefix backend
 
-      - name: Stage 4 — Production Build
+      - name: Stage 4 — Telemetry Benchmark Generation & Safety Floor Gate
+        run: |
+          npm run benchmark --prefix backend
+          test -f backend/benchmark.json || (echo "❌ backend/benchmark.json missing!" && exit 1)
+          grep -q '"passed": true' backend/benchmark.json || (echo "❌ Benchmark floor limits failed!" && exit 1)
+          echo "✅ Benchmark telemetry verification passed."
+
+      - name: Stage 5 — Presidio Anti-Overclaim CI Check
+        run: |
+          # Fails build if Presidio appears anywhere without an explicit "NOT used" qualifier
+          UNQUALIFIED=$(grep -ri presidio . --include=*.md --include=*.ts | grep -v node_modules | grep -v "NOT used" || true)
+          if [ -n "$UNQUALIFIED" ]; then
+            echo "❌ Unqualified Presidio overclaim found in codebase:"
+            echo "$UNQUALIFIED"
+            exit 1
+          fi
+          echo "✅ Presidio anti-overclaim CI check passed."
+
+      - name: Stage 6 — Production Build
         run: npm run build
 
-      - name: Stage 5 — Deterministic Allowlist Packaging Check
+      - name: Stage 7 — Deterministic Allowlist Packaging Check
         run: npm run package
 
-      - name: Stage 6 — Verify Packaged Artifact Contains Test Suite
+      - name: Stage 8 — Verify Packaged Artifact Contains Test Suite
         run: |
           unzip -l aegistrial.zip | grep -q "backend/tests/invariants" || (echo "❌ Tests missing from packaged zip!" && exit 1)
           echo "✅ Package artifact test suite verification passed."
 
-      - name: Stage 7 — Docker Build Verification
+      - name: Stage 9 — Docker Build Verification
         run: docker build -t aegistrial:latest .

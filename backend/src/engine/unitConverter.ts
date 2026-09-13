@@ -54,6 +54,9 @@ const CONVERSION_TABLE: Record<string, number> = {
 
   // eGFR: mL/min/1.73m² ↔ mL/min (approximate — flag if body surface area unknown)
   // Not included: too ambiguous without BSA. Treated as UNIT_INCOMPATIBLE.
+  // HbA1c: mmol/mol ↔ % (IFCC to DCCT: % = 0.09148 * mmol/mol + 2.152)
+  'mmol/mol→%': 0.09148,
+  '%→mmol/mol': 10.929,
 };
 
 function normalizeUnit(unit: string): string {
@@ -80,6 +83,16 @@ export function convertUnit(
       compatible: true,
       convertedValue: value,
       conversionDescription: `${value} ${fromUnit} (no conversion needed)`,
+    };
+  }
+
+  // Affine HbA1c conversion
+  if (fromNorm === 'mmol/mol' && toNorm === '%') {
+    const converted = Number(((value * 0.09148) + 2.152).toFixed(1));
+    return {
+      compatible: true,
+      convertedValue: converted,
+      conversionDescription: `${value} mmol/mol converted to ${converted} %`,
     };
   }
 

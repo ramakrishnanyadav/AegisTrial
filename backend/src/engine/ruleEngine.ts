@@ -239,8 +239,14 @@ export function evaluateCriterion(
     };
   }
 
-  // Numeric comparison
-  if (typeof evalValue !== 'number') {
+  // Boolean / String vs Numeric comparison
+  let comparisonPassed = false;
+  if (criterion.operator === '==' || criterion.operator === '!=' || (criterion.operator as string) === 'EQUALS') {
+    const valStr = String(evalValue).toLowerCase().trim();
+    const threshStr = String(criterion.threshold).toLowerCase().trim();
+    const isEqual = valStr === threshStr;
+    comparisonPassed = criterion.operator === '!=' ? !isEqual : isEqual;
+  } else if (typeof evalValue !== 'number') {
     return {
       criterion,
       patientFields: temporalFields,
@@ -249,9 +255,9 @@ export function evaluateCriterion(
       reasonCode: DecisionReasonCode.HUMAN_REVIEW_REQUIRED,
       reasoning: `Field '${criterion.field}' value is not numeric. Cannot compare to threshold ${criterion.threshold}.`,
     };
+  } else {
+    comparisonPassed = compareValues(evalValue, criterion.operator, criterion.threshold);
   }
-
-  const comparisonPassed = compareValues(evalValue, criterion.operator, criterion.threshold);
 
   const reasonCode = comparisonPassed
     ? criterion.type === CriterionType.EXCLUSION
@@ -294,24 +300,20 @@ export function computeVerdict(evaluations: CriterionEvaluation[]): Verification
     return 'REQUIRES_HUMAN_REVIEW';
   }
 
+  const exclusionMet = evaluations.some(
+    (e) => e.criterion.type === CriterionType.EXCLUSION && e.result === 'met',
+  );
+  if (exclusionMet) return 'INELIGIBLE';
+
+  const inclusionFailed = evaluations.some(
+    (e) => e.criterion.type === CriterionType.INCLUSION && e.result === 'not_met',
+  );
+  if (inclusionFailed) return 'INELIGIBLE';
+
   const hasReview = evaluations.some((e) => e.result === 'insufficient_data');
   const hasBlocked = evaluations.some((e) => e.gateResult === 'BLOCKED');
 
   if (hasReview || hasBlocked) return 'REQUIRES_HUMAN_REVIEW';
-
-  const inclusionFailed = evaluations.some(
-    (e) =>
-      e.criterion.type === CriterionType.INCLUSION &&
-      e.result === 'not_met',
-  );
-  if (inclusionFailed) return 'INELIGIBLE';
-
-  const exclusionMet = evaluations.some(
-    (e) =>
-      e.criterion.type === CriterionType.EXCLUSION &&
-      e.result === 'met',
-  );
-  if (exclusionMet) return 'INELIGIBLE';
 
   return 'ELIGIBLE';
 }

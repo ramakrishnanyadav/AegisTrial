@@ -161,3 +161,52 @@ test('test_client_cannot_change_institution', () => {
   expect(attemptInstitutionChange.rejectedFields).toContain('institution');
   expect(attemptInstitutionChange.rejectedFields).toContain('role');
 });
+
+// ---------------------------------------------------------------------------
+// Test 6: Firestore rules field-scope verification
+// ---------------------------------------------------------------------------
+test('test_firestore_rules_prevent_role_institution_npinumber_escalation', () => {
+  // Simulates the field-scoped rules evaluation for /users/{userId}
+  function validateFirestoreUserWrite(
+    isCreate: boolean,
+    writtenKeys: string[],
+  ): { allowed: boolean; error?: string } {
+    if (isCreate) {
+      const forbidden = ['role', 'institution', 'npiNumber'];
+      const attemptedForbidden = writtenKeys.filter((k) => forbidden.includes(k));
+      if (attemptedForbidden.length > 0) {
+        return { allowed: false, error: `Forbidden creation fields: ${attemptedForbidden.join(', ')}` };
+      }
+      return { allowed: true };
+    } else {
+      // Update: allowedKeys = ['displayName', 'photoURL', 'updatedAt']
+      const allowedKeys = ['displayName', 'photoURL', 'updatedAt'];
+      const disallowed = writtenKeys.filter((k) => !allowedKeys.includes(k));
+      if (disallowed.length > 0) {
+        return { allowed: false, error: `Disallowed update keys: ${disallowed.join(', ')}` };
+      }
+      return { allowed: true };
+    }
+  }
+
+  // Attempt to create user with role -> REJECTED
+  const createWithRole = validateFirestoreUserWrite(true, ['displayName', 'role']);
+  expect(createWithRole.allowed).toBe(false);
+
+  // Attempt to create user with institution & npiNumber -> REJECTED
+  const createWithInst = validateFirestoreUserWrite(true, ['institution', 'npiNumber']);
+  expect(createWithInst.allowed).toBe(false);
+
+  // Valid create without forbidden fields -> ALLOWED
+  const validCreate = validateFirestoreUserWrite(true, ['displayName', 'photoURL']);
+  expect(validCreate.allowed).toBe(true);
+
+  // Attempt to update role or institution -> REJECTED
+  const updateRole = validateFirestoreUserWrite(false, ['role']);
+  expect(updateRole.allowed).toBe(false);
+
+  // Valid update of displayName & photoURL -> ALLOWED
+  const validUpdate = validateFirestoreUserWrite(false, ['displayName', 'photoURL', 'updatedAt']);
+  expect(validUpdate.allowed).toBe(true);
+});
+

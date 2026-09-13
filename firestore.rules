@@ -10,10 +10,17 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
-    // User profiles & credentials
+    // User profiles & credentials (Field-scoped RBAC protection)
     match /users/{userId} {
       allow read: if isAuthenticated();
-      allow write: if isOwner(userId);
+      allow update: if isOwner(userId)
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['displayName', 'photoURL', 'updatedAt']);
+      allow create: if isOwner(userId)
+        && !('role' in request.resource.data)
+        && !('institution' in request.resource.data)
+        && !('npiNumber' in request.resource.data);
+      allow delete: if false;
     }
 
     // Patient eligibility screenings (Backend Admin SDK writes only, client read-only)

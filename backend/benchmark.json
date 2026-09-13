@@ -1,80 +1,15 @@
 {
-  "benchmarkSuite": "AegisTrial Governance & Deterministic Rule Engine Performance Matrix",
-  "version": "4.0.0",
-  "timestamp": "2026-09-12T11:00:00Z",
-  "environment": {
-    "nodeVersion": "v22.21.0",
-    "os": "Windows_NT 10.0.26100",
-    "architecture": "x64",
-    "db": "SQLite 3 (better-sqlite3 WAL mode)"
-  },
+  "generatedAt": "2026-09-13T13:23:50.750Z",
+  "testCasesEvaluated": 8,
   "metrics": {
-    "phiSafetyPipeline": {
-      "tier1RegexLatencyMs": 0.42,
-      "tier2NerLatencyMs": 4.15,
-      "tier3LyzrSafetyLatencyMs": 285.0,
-      "tier4ResidualScanLatencyMs": 0.28,
-      "totalPipelineLatencyMs": 289.85,
-      "throughputOpsPerSec": 3.45,
-      "phiRedactionRecallPercentage": 100.0,
-      "safeHarborCategoriesCovered": 18
-    },
-    "deterministicRuleEngine": {
-      "criterionEvaluationLatencyMs": 0.12,
-      "verdictComputationLatencyMs": 0.05,
-      "decisionProofHashGenerationMs": 0.35,
-      "aiFreeReplayVerificationMs": 0.85,
-      "verificationDeterminismScore": 1.0
-    },
-    "aimsAuditOutbox": {
-      "enqueueLatencyMs": 0.45,
-      "workerFlushLatencyMs": 12.3,
-      "deliveryRetrySuccessRatePercentage": 100.0,
-      "hashChainIntegrityVerified": true
-    },
-    "adversarialAttacks": [
-      {
-        "attackId": "ATTACK-01",
-        "name": "PHI Leakage Vector",
-        "target": "PHI Safety Pipeline (Tier 1-4)",
-        "blocked": true,
-        "responseLatencyMs": 291.2
-      },
-      {
-        "attackId": "ATTACK-02",
-        "name": "Direct Prompt Injection",
-        "target": "Tier 3 Lyzr Medical Safety Agent",
-        "blocked": true,
-        "responseLatencyMs": 288.4
-      },
-      {
-        "attackId": "ATTACK-03",
-        "name": "Temporal Inversion Attack",
-        "target": "Evidence Resolver & Rule Engine",
-        "blocked": true,
-        "responseLatencyMs": 1.1
-      },
-      {
-        "attackId": "ATTACK-04",
-        "name": "Unit Mismatch Confusion",
-        "target": "Deterministic Unit Converter",
-        "blocked": true,
-        "responseLatencyMs": 0.8
-      },
-      {
-        "attackId": "ATTACK-05",
-        "name": "Low Confidence Override",
-        "target": "Gate 2 Confidence Evaluator",
-        "blocked": true,
-        "responseLatencyMs": 0.6
-      },
-      {
-        "attackId": "ATTACK-06",
-        "name": "AIMS Audit Tampering",
-        "target": "SHA-256 Hash Chain Verifier",
-        "blocked": true,
-        "responseLatencyMs": 1.4
-      }
-    ]
-  }
+    "llmExtractionAccuracy": 100,
+    "phiSafetyRecall": 100,
+    "deterministicDecisionAccuracy": 100
+  },
+  "floorLimits": {
+    "llmExtractionAccuracy": 85,
+    "phiSafetyRecall": 95,
+    "deterministicDecisionAccuracy": 95
+  },
+  "passed": true
 }

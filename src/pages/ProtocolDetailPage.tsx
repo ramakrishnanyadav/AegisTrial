@@ -6,7 +6,7 @@ import React from 'react';
 import { useParams, NavLink } from 'react-router-dom';
 import { ArrowLeft, CheckCircle2, ShieldAlert, FileText } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { SYNTHETIC_PROTOCOL } from '../../backend/tests/fixtures/protocol.js';
+import { SYNTHETIC_PROTOCOL } from '../../shared/fixtures/protocol.js';
 
 export const ProtocolDetailPage: React.FC = () => {
   const { protocolId } = useParams();

@@ -12,7 +12,7 @@ All HTTP API requests and background outbox workers generate structured JSON log
 
 ### Zero-PHI Logging Policy
 - **Strict Prohibition**: Raw or redacted clinical text, patient names, dates of birth, MRNs, or clinical narrative notes MUST NEVER be logged.
-- **Quantified Redactions Only**: Log lines capture numerical redaction counts (`phiRedactionCount`) emitted by Tier 1 regex, Tier 2 compromise patterns, and Tier 3 Presidio scanners.
+- **Quantified Redactions Only**: Log lines capture numerical redaction counts (`phiRedactionCount`) emitted by Tier 1 regex patterns, Tier 2 compromise detectors, and Tier 3 deterministic scanners (Note: Microsoft Presidio is NOT used in this architecture).
 
 ### JSON Log Line Schema
 

@@ -10,11 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2026-09-13
 
 ### Safety & Security
-- **Multi-Tier PHI Redaction Pipeline**: Implemented 4-tier fail-closed PHI defense (regex, compromise rules, Presidio, deterministic hashing) guaranteeing zero raw PHI reaches downstream LLM contexts or logs.
+- **Multi-Tier PHI Redaction Pipeline**: Implemented 4-tier fail-closed PHI defense (regex, compromise rules, deterministic hashing — note: Presidio is NOT used) guaranteeing zero raw PHI reaches downstream LLM contexts or logs.
 - **Fail-Closed Gate Evaluation**: Ensured any missing clinical criteria, unparseable responses, or ambiguous protocol rules default to `REQUIRES_HUMAN_REVIEW` rather than permissive approval.
 - **Role-Based Access Control (RBAC)**: Enforced strict privilege boundaries in backend API routes preventing Coordinators from executing PI-only trial sign-off operations (`test_coordinator_cannot_pi_signoff`).
 - **Deterministic Secret Elimination**: Integrated `scripts/check-secrets.ts` pre-commit scanner and explicit allowlist packaging (`scripts/package.ts`) to structurally prevent live API keys or OAuth secrets from bundling.
-- **STRIDE Threat Model**: Formalized system threat mitigations and residual risks in [`docs/THREAT_MODEL.md`](file:///c:/Users/Ramakrishna/OneDrive/Pictures/java/Documents/Projects/Lyzr/aegistrial/docs/THREAT_MODEL.md).
+- **STRIDE Threat Model**: Formalized system threat mitigations and residual risks in `docs/THREAT_MODEL.md`.
 
 ### Feature
 - **Proof-of-Eligibility Verification**: Added cryptographic sha256 decision hashes (`DecisionProof.artifactHash`) and sign-off attestation flows.
@@ -29,5 +29,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Structured JSON Logging**: Implemented `structuredLoggingMiddleware` injecting `x-correlation-id` and eliminating free-form string logging across all routes.
 
 ### Governance
-- **Secret Exposure Postmortem**: Published formal incident analysis in [`docs/postmortems/2026-09-secret-exposure.md`](file:///c:/Users/Ramakrishna/OneDrive/Pictures/java/Documents/Projects/Lyzr/aegistrial/docs/postmortems/2026-09-secret-exposure.md) documenting root causes and 3 verified structural controls.
+- **Secret Exposure Postmortem**: Published formal incident analysis in `docs/postmortems/2026-09-secret-exposure.md` documenting root causes and 3 verified structural controls.
 - **CI/CD Integration**: Configured GitHub Actions workflows (`ci.yml` and `nightly.yml`) enforcing secret scanning, invariant test suites (47/47 passing), TypeScript verification, and clean artifact builds on every PR.

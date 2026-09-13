@@ -11,6 +11,7 @@
     "test:invariants": "node --experimental-vm-modules ../node_modules/jest/bin/jest.js --testPathPattern=tests/invariants --forceExit",
     "test:phi": "node --experimental-vm-modules ../node_modules/jest/bin/jest.js --testPathPattern=tests/phi --forceExit",
     "migrate": "tsx src/db/migrator.ts",
+    "benchmark": "tsx scripts/runBenchmark.ts",
     "lint": "tsc --noEmit"
   },
   "dependencies": {

@@ -7,6 +7,13 @@ import { PerformScreeningSchema } from '../../../shared/contracts/screenings.js'
 import { CANONICAL_ATTACKS, AttackId } from '../../../shared/contracts/attacks.js';
 import { DecisionReasonCode, CriterionType } from '../../src/domain/types.js';
 
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 describe('Contract & Schema Parity Tests', () => {
 
   test('test_screening_request_contract', () => {
@@ -93,6 +100,30 @@ describe('Contract & Schema Parity Tests', () => {
     expect(standardErrorEnvelope.error).toHaveProperty('message');
     expect(typeof standardErrorEnvelope.error.code).toBe('string');
     expect(typeof standardErrorEnvelope.error.message).toBe('string');
+  });
+
+  test('test_benchmark_json_exists_and_is_recent', () => {
+    const benchmarkPath = path.resolve(__dirname, '../../benchmark.json');
+
+    expect(fs.existsSync(benchmarkPath)).toBe(true);
+
+    const content = fs.readFileSync(benchmarkPath, 'utf-8');
+    const data = JSON.parse(content);
+
+    expect(data).toHaveProperty('generatedAt');
+    expect(data).toHaveProperty('metrics');
+    expect(data).toHaveProperty('floorLimits');
+    expect(data).toHaveProperty('passed');
+    expect(data.passed).toBe(true);
+
+    expect(data.metrics.llmExtractionAccuracy).toBeGreaterThanOrEqual(data.floorLimits.llmExtractionAccuracy);
+    expect(data.metrics.phiSafetyRecall).toBeGreaterThanOrEqual(data.floorLimits.phiSafetyRecall);
+    expect(data.metrics.deterministicDecisionAccuracy).toBeGreaterThanOrEqual(data.floorLimits.deterministicDecisionAccuracy);
+
+    const generatedAtMs = new Date(data.generatedAt).getTime();
+    const nowMs = Date.now();
+    const maxAgeMs = 7 * 24 * 60 * 60 * 1000;
+    expect(nowMs - generatedAtMs).toBeLessThan(maxAgeMs);
   });
 
 });

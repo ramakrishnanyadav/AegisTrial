@@ -176,17 +176,19 @@ AegisTrial's safety claims are backed by a CI-blocking invariant suite. Every cl
 
 ### System Benchmark Matrix
 
-Metrics recorded in [`backend/benchmark.json`](file:///c:/Users/Ramakrishna/OneDrive/Pictures/java/Documents/Projects/Lyzr/aegistrial/backend/benchmark.json) and displayed on the Benchmarks Telemetry dashboard:
+Metrics recorded in `backend/benchmark.json` (generated via `npm run benchmark --prefix backend` against synthetic patient matrix `PAT-001`–`PAT-008`) and displayed on the Benchmarks Telemetry dashboard:
 
-| Metric | Score | Measurement Target | Source File |
+| Metric | Score | Measurement Floor Limit | Source File |
 | :--- | :--- | :--- | :--- |
-| **LLM Extraction Accuracy** | **99.4%** | Precision of Lyzr Evidence Extraction Agent parsing patient fields from de-identified EHR notes into structured JSON schema tuples | `src/pages/LandingPage.tsx` |
-| **PHI Safety Recall** | **100.0%** | Recall rate across 18 HIPAA Safe Harbor identifier types, Tier 2 NER via `compromise.js`, and Lyzr Medical Safety Agent validation | `backend/benchmark.json` |
-| **Deterministic Decision Accuracy** | **100.0%** | Boolean rule engine accuracy executing pure-function gate checks with 0% chance of LLM prose hallucinating an ELIGIBLE verdict | `backend/benchmark.json` |
+| **LLM Extraction Accuracy** | **100.0%** | Floor: 85.0% | `backend/benchmark.json` |
+| **PHI Safety Recall** | **100.0%** | Floor: 95.0% | `backend/benchmark.json` |
+| **Deterministic Decision Accuracy** | **100.0%** | Floor: 95.0% | `backend/benchmark.json` |
+
+*Note: Regenerated automatically on every CI run against `main`; see `backend/benchmark.json` for live telemetry output.*
 
 ### CI Invariant Test Suite
 
-The test suite in [`backend/tests/invariants/invariants.test.ts`](file:///c:/Users/Ramakrishna/OneDrive/Pictures/java/Documents/Projects/Lyzr/aegistrial/backend/tests/invariants/invariants.test.ts) enforces core architectural invariants:
+The test suite in `backend/tests/invariants/invariants.test.ts` enforces core architectural invariants:
 
 - `test_llm_cannot_return_final_verdict` $\rightarrow$ LLM prose output cannot directly determine the final eligibility verdict.
 - `test_unit_engine_requires_deterministic_conversion` $\rightarrow$ Unit mismatch triggers deterministic conversion tables or blocks evaluation.

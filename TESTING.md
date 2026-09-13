@@ -56,7 +56,7 @@ In regulated clinical environments, test coverage metrics alone are insufficient
 
 ## 3. Synthetic Patient Fixtures Matrix
 
-Canonical test fixtures are located in [`shared/fixtures/patients.ts`](file:///c:/Users/Ramakrishna/OneDrive/Pictures/java/Documents/Projects/Lyzr/aegistrial/shared/fixtures/patients.ts) and [`backend/tests/fixtures/patients.ts`](file:///c:/Users/Ramakrishna/OneDrive/Pictures/java/Documents/Projects/Lyzr/aegistrial/backend/tests/fixtures/patients.ts):
+Canonical test fixtures are located in `shared/fixtures/patients.ts` and `backend/tests/fixtures/patients.ts`:
 
 | Fixture ID | Patient Profile & Target Vector | Expected Verdict / System Behavior |
 | :--- | :--- | :--- |

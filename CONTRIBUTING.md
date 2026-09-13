@@ -45,8 +45,8 @@ All PRs must pass the `quality-gate` workflow in GitHub Actions before merging t
 ## 3. Mandatory Invariant Test Rule
 
 If a pull request modifies any of the following core modules:
-- [`backend/src/engine/ruleEngine.ts`](file:///c:/Users/Ramakrishna/OneDrive/Pictures/java/Documents/Projects/Lyzr/aegistrial/backend/src/engine/ruleEngine.ts)
-- [`backend/src/engine/evidenceResolver.ts`](file:///c:/Users/Ramakrishna/OneDrive/Pictures/java/Documents/Projects/Lyzr/aegistrial/backend/src/engine/evidenceResolver.ts)
-- [`backend/src/phi/phiPipeline.ts`](file:///c:/Users/Ramakrishna/OneDrive/Pictures/java/Documents/Projects/Lyzr/aegistrial/backend/src/phi/phiPipeline.ts)
+- `backend/src/engine/ruleEngine.ts`
+- `backend/src/engine/evidenceResolver.ts`
+- `backend/src/phi/phiPipeline.ts`
 
 You **must** include a corresponding invariant test under `backend/tests/invariants/` that actively attempts to violate the modified logic.

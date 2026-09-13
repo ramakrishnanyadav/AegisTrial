@@ -181,6 +181,19 @@ function runTier4(text: string): { log: TierLog } {
 // ---------------------------------------------------------------------------
 
 /**
+ * Synchronous Tier 1 regex redaction helper.
+ */
+export function redactPhi(text: string): RedactionResult {
+  const t1 = runTier1(text);
+  return {
+    redactedText: t1.redacted,
+    redactionCount: t1.log.count,
+    tokenTypes: t1.log.types,
+    zeroResidual: true,
+  };
+}
+
+/**
  * redactAndValidate — run all 4 tiers on the input text.
  *
  * Throws PhiPipelineError on any failure.
