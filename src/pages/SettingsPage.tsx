@@ -48,8 +48,9 @@ export const SettingsPage: React.FC = () => {
 
         <form onSubmit={handleSave} className="space-y-4 text-xs">
           <div>
-            <label className="block text-slate-700 font-semibold mb-1">Email Address (Primary Identity)</label>
+            <label htmlFor="settings-email-input" className="block text-slate-700 font-semibold mb-1">Email Address (Primary Identity)</label>
             <input
+              id="settings-email-input"
               type="text"
               disabled
               value={currentUser?.email || 'unauthenticated@demo.org'}
@@ -58,8 +59,9 @@ export const SettingsPage: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-slate-700 font-semibold mb-1">Display Name</label>
+            <label htmlFor="settings-display-name-input" className="block text-slate-700 font-semibold mb-1">Display Name</label>
             <input
+              id="settings-display-name-input"
               type="text"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}

@@ -163,8 +163,9 @@ export const ProtocolsPage: React.FC = () => {
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold text-slate-700 mb-1">Protocol ID (Optional)</label>
+                      <label htmlFor="protocol-id-input" className="block text-xs font-bold text-slate-700 mb-1">Protocol ID (Optional)</label>
                       <input
+                        id="protocol-id-input"
                         type="text"
                         value={protocolIdInput}
                         onChange={(e) => setProtocolIdInput(e.target.value)}
@@ -173,8 +174,9 @@ export const ProtocolsPage: React.FC = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-slate-700 mb-1">Protocol Title (Optional)</label>
+                      <label htmlFor="protocol-title-input" className="block text-xs font-bold text-slate-700 mb-1">Protocol Title (Optional)</label>
                       <input
+                        id="protocol-title-input"
                         type="text"
                         value={titleInput}
                         onChange={(e) => setTitleInput(e.target.value)}
@@ -185,8 +187,9 @@ export const ProtocolsPage: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Protocol Document Text (Required)</label>
+                    <label htmlFor="protocol-text-input" className="block text-xs font-bold text-slate-700 mb-1">Protocol Document Text (Required)</label>
                     <textarea
+                      id="protocol-text-input"
                       rows={8}
                       value={textInput}
                       onChange={(e) => setTextInput(e.target.value)}

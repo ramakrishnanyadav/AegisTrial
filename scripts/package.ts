@@ -46,7 +46,7 @@ function buildZip(): void {
 
   console.log('[Package] Running pre-package secret scan...');
   try {
-    execSync('npx tsx scripts/check-secrets.ts', { stdio: 'inherit' });
+    execSync('npx tsx scripts/check-secrets.ts', { stdio: 'inherit', env: { ...process.env } });
   } catch {
     console.error('[Package Error] Secret scan failed. Aborting package creation.');
     process.exit(1);

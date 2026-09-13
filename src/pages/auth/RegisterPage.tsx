@@ -63,10 +63,11 @@ export const RegisterPage: React.FC = () => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">Work Email</label>
+            <label htmlFor="register-email-input" className="block text-xs font-semibold text-slate-700 mb-1.5">Work Email</label>
             <div className="relative">
               <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
               <input
+                id="register-email-input"
                 type="email"
                 required
                 value={email}
@@ -78,10 +79,11 @@ export const RegisterPage: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">Password</label>
+            <label htmlFor="register-password-input" className="block text-xs font-semibold text-slate-700 mb-1.5">Password</label>
             <div className="relative">
               <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
               <input
+                id="register-password-input"
                 type="password"
                 required
                 minLength={6}
@@ -94,10 +96,11 @@ export const RegisterPage: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">Confirm Password</label>
+            <label htmlFor="register-confirm-password-input" className="block text-xs font-semibold text-slate-700 mb-1.5">Confirm Password</label>
             <div className="relative">
               <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
               <input
+                id="register-confirm-password-input"
                 type="password"
                 required
                 value={confirmPassword}

@@ -66,10 +66,11 @@ export const ForgotPasswordPage: React.FC = () => {
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">Work Email</label>
+              <label htmlFor="reset-email-input" className="block text-xs font-semibold text-slate-300 mb-1.5">Work Email</label>
               <div className="relative">
                 <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
                 <input
+                  id="reset-email-input"
                   type="email"
                   required
                   value={email}
