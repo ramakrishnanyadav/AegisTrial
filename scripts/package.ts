@@ -13,6 +13,7 @@ import AdmZip from 'adm-zip';
 
 const ALLOWLIST = [
   'src',
+  'public',
   'backend/src',
   'backend/tests',
   'backend/package.json',
