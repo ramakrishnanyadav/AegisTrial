@@ -14,7 +14,7 @@
  *   Hash encoding:  Lowercase hex, 64 chars
  */
 
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 // @ts-ignore
 import unorm from 'unorm';
 import type { DecisionProof, CriterionEvaluation } from '../domain/types.js';

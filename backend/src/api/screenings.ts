@@ -55,6 +55,39 @@ export const screeningsRouter = Router();
 // ---------------------------------------------------------------------------
 // POST /api/screenings
 // ---------------------------------------------------------------------------
+function checkIdempotency(
+  idempotencyKey: string,
+  patientId: string,
+  protocolId: string,
+): { conflict?: IdempotencyConflictError; originalRun?: ReturnType<typeof getScreeningRun> } {
+  const existing = getIdempotencyKey(idempotencyKey);
+  if (!existing) return {};
+
+  if (existing.patient_id !== patientId) {
+    return {
+      conflict: {
+        error: 'IDEMPOTENCY_KEY_REUSED',
+        message: `Idempotency key '${idempotencyKey}' was previously used with a different patientId`,
+        originalRunId: existing.run_id,
+        conflictingField: 'patientId',
+      },
+    };
+  }
+  if (existing.protocol_id !== protocolId) {
+    return {
+      conflict: {
+        error: 'IDEMPOTENCY_KEY_REUSED',
+        message: `Idempotency key '${idempotencyKey}' was previously used with a different protocolId`,
+        originalRunId: existing.run_id,
+        conflictingField: 'protocolId',
+      },
+    };
+  }
+
+  const originalRun = getScreeningRun(existing.run_id);
+  return { originalRun: originalRun ?? undefined };
+}
+
 screeningsRouter.post('/', async (req: Request, res: Response) => {
   const parseResult = PerformScreeningSchema.safeParse(req.body);
   if (!parseResult.success) {
@@ -71,34 +104,14 @@ screeningsRouter.post('/', async (req: Request, res: Response) => {
   const { patientId, protocolId, patientText, idempotencyKey } = parseResult.data;
 
   // ── Idempotency check ────────────────────────────────────────────────────
-  const existing = getIdempotencyKey(idempotencyKey);
-  if (existing) {
-    if (existing.patient_id !== patientId) {
-      const conflict: IdempotencyConflictError = {
-        error: 'IDEMPOTENCY_KEY_REUSED',
-        message: `Idempotency key '${idempotencyKey}' was previously used with a different patientId`,
-        originalRunId: existing.run_id,
-        conflictingField: 'patientId',
-      };
-      res.status(409).json(conflict);
-      return;
-    }
-    if (existing.protocol_id !== protocolId) {
-      const conflict: IdempotencyConflictError = {
-        error: 'IDEMPOTENCY_KEY_REUSED',
-        message: `Idempotency key '${idempotencyKey}' was previously used with a different protocolId`,
-        originalRunId: existing.run_id,
-        conflictingField: 'protocolId',
-      };
-      res.status(409).json(conflict);
-      return;
-    }
-    // Same payload → return original run
-    const originalRun = getScreeningRun(existing.run_id);
-    if (originalRun) {
-      res.status(200).json(toResponse(originalRun));
-      return;
-    }
+  const { conflict, originalRun } = checkIdempotency(idempotencyKey, patientId, protocolId);
+  if (conflict) {
+    res.status(409).json(conflict);
+    return;
+  }
+  if (originalRun) {
+    res.status(200).json(toResponse(originalRun));
+    return;
   }
 
   // ── Load criteria ────────────────────────────────────────────────────────

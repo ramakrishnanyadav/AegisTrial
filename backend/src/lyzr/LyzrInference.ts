@@ -57,22 +57,18 @@ export class LyzrInference {
 
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
       try {
-        const result = await this.callOnce<T>(message, sessionId);
-        return result;
+        return await this.callOnce<T>(message, sessionId);
       } catch (err) {
-        if (err instanceof LyzrError) {
-          if (err.kind === 'AUTH_FAILURE') throw err; // never retry auth failures
-          if (err.kind === 'GUARDRAIL_DENY') throw err; // never retry policy blocks
-          lastErr = err;
-          if (attempt < MAX_RETRIES) {
-            const backoffMs = attempt * 1000;
-            console.warn(
-              `[LyzrInference:${this.agent.role}] Attempt ${attempt} failed (${err.kind}). Retrying in ${backoffMs}ms...`,
-            );
-            await new Promise((r) => setTimeout(r, backoffMs));
-          }
-        } else {
-          throw err;
+        if (!(err instanceof LyzrError)) throw err;
+        if (err.kind === 'AUTH_FAILURE' || err.kind === 'GUARDRAIL_DENY') throw err;
+        
+        lastErr = err;
+        if (attempt < MAX_RETRIES) {
+          const backoffMs = attempt * 1000;
+          console.warn(
+            `[LyzrInference:${this.agent.role}] Attempt ${attempt} failed (${err.kind}). Retrying in ${backoffMs}ms...`,
+          );
+          await new Promise((r) => setTimeout(r, backoffMs));
         }
       }
     }

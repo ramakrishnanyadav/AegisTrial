@@ -85,7 +85,7 @@ export const DecisionProofDrawer: React.FC<DecisionProofDrawerProps> = ({ proof,
             <div className="grid grid-cols-2 gap-4">
               <div className="p-4 rounded-2xl bg-indigo-50/60 border border-indigo-200">
                 <div className="text-xs text-indigo-800 font-bold mb-1 flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-indigo-600" />
+                  <span className="w-2 h-2 rounded-full bg-indigo-600"></span>
                   AI Extracted Value
                 </div>
                 <div className="text-xl font-mono font-bold text-slate-900">
@@ -96,7 +96,7 @@ export const DecisionProofDrawer: React.FC<DecisionProofDrawerProps> = ({ proof,
 
               <div className="p-4 rounded-2xl bg-emerald-50/60 border border-emerald-200">
                 <div className="text-xs text-emerald-800 font-bold mb-1 flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-600" />
+                  <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
                   Normalized Value
                 </div>
                 <div className="text-xl font-mono font-bold text-slate-900">

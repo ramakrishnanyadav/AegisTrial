@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import { agentRegistry } from '../lyzr/index.js';
 import { upsertProtocol, getProtocol, listProtocols } from '../db/repository.js';
 import { Criterion } from '../domain/types.js';

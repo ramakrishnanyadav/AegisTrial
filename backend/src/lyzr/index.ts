@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import { LyzrAgent, AGENT_CACHE_FILE } from './LyzrAgent.js';
 import { LyzrEnvironment } from './LyzrEnvironment.js';
 import { LyzrInference } from './LyzrInference.js';

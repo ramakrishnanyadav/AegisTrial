@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 
 const SECRET_PATTERNS = [
   /sk-default-[A-Za-z0-9_-]{20,}/i,
@@ -24,31 +24,35 @@ const ALLOWED_FILES = [
   'src/lib/firebase.ts',
 ];
 
+function isAllowedFile(relPath: string): boolean {
+  return ALLOWED_FILES.some((f) => relPath === f || relPath.endsWith('/' + f));
+}
+
+function checkFileSecrets(fullPath: string, relPath: string, errors: string[]): void {
+  if (isAllowedFile(relPath)) return;
+  try {
+    const content = fs.readFileSync(fullPath, 'utf-8');
+    for (const pattern of SECRET_PATTERNS) {
+      if (pattern.test(content)) {
+        errors.push(`[SECRET EXPOSURE RISK] Found hardcoded secret matching ${pattern} in ${relPath}`);
+      }
+    }
+  } catch {
+    // Skip unreadable files
+  }
+}
+
 function scanDir(dir: string, errors: string[] = []): string[] {
   const entries = fs.readdirSync(dir, { withFileTypes: true });
 
   for (const entry of entries) {
     const fullPath = path.join(dir, entry.name);
-    const relPath = path.relative(process.cwd(), fullPath).replace(/\\/g, '/');
+    const relPath = path.relative(process.cwd(), fullPath).replaceAll('\\', '/');
 
-    if (entry.isDirectory()) {
-      if (!IGNORED_DIRS.includes(entry.name)) {
-        scanDir(fullPath, errors);
-      }
+    if (entry.isDirectory() && !IGNORED_DIRS.includes(entry.name)) {
+      scanDir(fullPath, errors);
     } else if (entry.isFile()) {
-      if (ALLOWED_FILES.some((f) => relPath === f || relPath.endsWith('/' + f))) {
-        continue;
-      }
-      try {
-        const content = fs.readFileSync(fullPath, 'utf-8');
-        for (const pattern of SECRET_PATTERNS) {
-          if (pattern.test(content)) {
-            errors.push(`[SECRET EXPOSURE RISK] Found hardcoded secret matching ${pattern} in ${relPath}`);
-          }
-        }
-      } catch {
-        // Skip unreadable files
-      }
+      checkFileSecrets(fullPath, relPath, errors);
     }
   }
 
@@ -63,3 +67,4 @@ if (errors.length > 0) {
 } else {
   console.log('✅ Secret scan passed: Zero hardcoded secrets found in codebase.');
 }
+

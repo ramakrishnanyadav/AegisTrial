@@ -98,6 +98,76 @@ function compareValues(
  *   Gate 6: Temporal window filter (strict timestamp check)
  *   Numeric / categorical comparison on normalized values
  */
+function getComparisonReasonCode(
+  comparisonPassed: boolean,
+  criterionType: CriterionType,
+): DecisionReasonCode {
+  if (comparisonPassed) {
+    return criterionType === CriterionType.EXCLUSION
+      ? DecisionReasonCode.EXCLUSION_CRITERION_MET
+      : DecisionReasonCode.INCLUSION_CRITERION_MET;
+  }
+  return criterionType === CriterionType.EXCLUSION
+    ? DecisionReasonCode.EXCLUSION_CRITERION_NOT_MET
+    : DecisionReasonCode.INCLUSION_CRITERION_NOT_MET;
+}
+
+function normalizeEvidenceFields(
+  criterion: Criterion,
+  matchedFields: PatientField[],
+): { error?: CriterionEvaluation; normalizedFields: Array<PatientField & { convertedValue?: number }> } {
+  const normalizedFields: Array<PatientField & { convertedValue?: number }> = [];
+  for (const field of matchedFields) {
+    if (typeof criterion.threshold === 'number' && typeof field.value === 'number') {
+      const fieldUnit = field.unit ?? criterion.unit;
+      const targetUnit = criterion.unit;
+      if (fieldUnit && targetUnit && !unitsAreCompatible(fieldUnit, targetUnit)) {
+        return {
+          error: {
+            criterion,
+            patientFields: matchedFields,
+            gateResult: 'BLOCKED',
+            result: 'insufficient_data',
+            reasonCode: DecisionReasonCode.UNIT_INCOMPATIBLE,
+            reasoning: buildReasoningText(criterion, DecisionReasonCode.UNIT_INCOMPATIBLE, field.value),
+          },
+          normalizedFields: [],
+        };
+      }
+
+      const conversion = convertUnit(field.value, fieldUnit, targetUnit);
+      if (!conversion.compatible || conversion.convertedValue === undefined) {
+        return {
+          error: {
+            criterion,
+            patientFields: matchedFields,
+            gateResult: 'BLOCKED',
+            result: 'insufficient_data',
+            reasonCode: DecisionReasonCode.UNIT_INCOMPATIBLE,
+            reasoning: buildReasoningText(criterion, DecisionReasonCode.UNIT_INCOMPATIBLE, field.value),
+          },
+          normalizedFields: [],
+        };
+      }
+      normalizedFields.push({ ...field, convertedValue: conversion.convertedValue });
+    } else {
+      normalizedFields.push(field);
+    }
+  }
+  return { normalizedFields };
+}
+
+/**
+ * Evaluate a single ResolvedEvidence item against its criterion.
+ * Pipeline Order:
+ *   Gate 1: Missing evidence
+ *   Gate 2: Ambiguous ontology
+ *   Gate 3: Unit compatibility check & deterministic conversion to normalized values
+ *   Gate 4: Conflict detection on unit-normalized values
+ *   Gate 5: Policy block
+ *   Gate 6: Temporal window filter (strict timestamp check)
+ *   Numeric / categorical comparison on normalized values
+ */
 export function evaluateCriterion(
   resolved: ResolvedEvidence,
   isPolicyBlocked: boolean = false,
@@ -129,38 +199,8 @@ export function evaluateCriterion(
   }
 
   // ── Gate 3: Unit compatibility check & deterministic normalization ───────
-  const normalizedFields: Array<PatientField & { convertedValue?: number }> = [];
-  for (const field of matchedFields) {
-    if (typeof criterion.threshold === 'number' && typeof field.value === 'number') {
-      const fieldUnit = field.unit ?? criterion.unit;
-      const targetUnit = criterion.unit;
-      if (fieldUnit && targetUnit && !unitsAreCompatible(fieldUnit, targetUnit)) {
-        return {
-          criterion,
-          patientFields: matchedFields,
-          gateResult: 'BLOCKED',
-          result: 'insufficient_data',
-          reasonCode: DecisionReasonCode.UNIT_INCOMPATIBLE,
-          reasoning: buildReasoningText(criterion, DecisionReasonCode.UNIT_INCOMPATIBLE, field.value),
-        };
-      }
-
-      const conversion = convertUnit(field.value, fieldUnit, targetUnit);
-      if (!conversion.compatible || conversion.convertedValue === undefined) {
-        return {
-          criterion,
-          patientFields: matchedFields,
-          gateResult: 'BLOCKED',
-          result: 'insufficient_data',
-          reasonCode: DecisionReasonCode.UNIT_INCOMPATIBLE,
-          reasoning: buildReasoningText(criterion, DecisionReasonCode.UNIT_INCOMPATIBLE, field.value),
-        };
-      }
-      normalizedFields.push({ ...field, convertedValue: conversion.convertedValue });
-    } else {
-      normalizedFields.push(field);
-    }
-  }
+  const { error, normalizedFields } = normalizeEvidenceFields(criterion, matchedFields);
+  if (error) return error;
 
   const firstField = normalizedFields[0]!;
   const firstValue = firstField.convertedValue ?? firstField.value;
@@ -259,14 +299,7 @@ export function evaluateCriterion(
     comparisonPassed = compareValues(evalValue, criterion.operator, criterion.threshold);
   }
 
-  const reasonCode = comparisonPassed
-    ? criterion.type === CriterionType.EXCLUSION
-      ? DecisionReasonCode.EXCLUSION_CRITERION_MET
-      : DecisionReasonCode.INCLUSION_CRITERION_MET
-    : criterion.type === CriterionType.EXCLUSION
-    ? DecisionReasonCode.EXCLUSION_CRITERION_NOT_MET
-    : DecisionReasonCode.INCLUSION_CRITERION_NOT_MET;
-
+  const reasonCode = getComparisonReasonCode(comparisonPassed, criterion.type);
   const finalResult: 'met' | 'not_met' = comparisonPassed ? 'met' : 'not_met';
 
   return {

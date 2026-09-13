@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import dotenv from 'dotenv';
-import path from 'path';
-import fs from 'fs';
+import path from 'node:path';
+import fs from 'node:fs';
 
 // Load .env file into process.env if present
 const envPath = path.resolve(process.cwd(), '.env');

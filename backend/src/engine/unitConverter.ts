@@ -60,7 +60,7 @@ const CONVERSION_TABLE: Record<string, number> = {
 };
 
 function normalizeUnit(unit: string): string {
-  return unit.toLowerCase().replace(/\s+/g, '').replace(/²/g, '²');
+  return unit.toLowerCase().replaceAll(/\s+/g, '').replaceAll('²', '²');
 }
 
 /**

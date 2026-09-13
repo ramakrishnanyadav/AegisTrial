@@ -18,7 +18,7 @@ export const PHI_PATTERNS: PhiPattern[] = [
     id: 1,
     name: 'Names',
     token: '[NAME]',
-    regex: /\b(?:Dr\.?|Mr\.?|Mrs\.?|Ms\.?|Prof\.?)\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?\b/g,
+    regex: /\b(?:Dr|Mr|Mrs|Ms|Prof)\.?\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?\b/g,
   },
 
   // 2. Geographic — street addresses, zip codes (5+4 digit), city+state combos
@@ -26,7 +26,7 @@ export const PHI_PATTERNS: PhiPattern[] = [
     id: 2,
     name: 'Geographic',
     token: '[ADDR]',
-    regex: /\b\d{1,5}\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+(?:St|Ave|Blvd|Rd|Dr|Ln|Way|Court|Ct|Pl|Square|Sq)\.?\b/gi,
+    regex: /\b\d{1,5}\s+(?:[A-Z][a-z]+\s+)+(?:St|Ave|Blvd|Rd|Dr|Ln|Way|Court|Ct|Pl|Square|Sq)\.?\b/gi,
   },
   {
     id: 2,
@@ -55,7 +55,7 @@ export const PHI_PATTERNS: PhiPattern[] = [
     id: 4,
     name: 'Phone',
     token: '[PHONE]',
-    regex: /\b(?:\+1\s?)?\(?[2-9]\d{2}\)?[\s.\-]?\d{3}[\s.\-]?\d{4}\b/g,
+    regex: /\b(?:\+1\s?)?\(?[2-9]\d{2}\)?[\s.-]?\d{3}[\s.-]?\d{4}\b/g,
   },
 
   // 5. Fax numbers — same pattern as phone but preceded by "fax"
@@ -63,7 +63,7 @@ export const PHI_PATTERNS: PhiPattern[] = [
     id: 5,
     name: 'Fax',
     token: '[FAX]',
-    regex: /\bfax:?\s*(?:\+1\s?)?\(?[2-9]\d{2}\)?[\s.\-]?\d{3}[\s.\-]?\d{4}\b/gi,
+    regex: /\bfax:?\s*(?:\+1\s?)?\(?[2-9]\d{2}\)?[\s.-]?\d{3}[\s.-]?\d{4}\b/gi,
   },
 
   // 6. Email addresses
@@ -71,7 +71,7 @@ export const PHI_PATTERNS: PhiPattern[] = [
     id: 6,
     name: 'Email',
     token: '[EMAIL]',
-    regex: /\b[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}\b/g,
+    regex: /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g,
   },
 
   // 7. Social Security Numbers
@@ -87,7 +87,7 @@ export const PHI_PATTERNS: PhiPattern[] = [
     id: 8,
     name: 'MRN',
     token: '[MRN]',
-    regex: /\b(?:MRN|Medical Record Number|Patient ID|PID)[\s:#]*[A-Z0-9\-]{4,16}\b/gi,
+    regex: /\b(?:MRN|Medical Record Number|Patient ID|PID)[\s:#]*[A-Z0-9-]{4,16}\b/gi,
   },
 
   // 9. Health plan beneficiary numbers
@@ -95,7 +95,7 @@ export const PHI_PATTERNS: PhiPattern[] = [
     id: 9,
     name: 'BeneficiaryNumber',
     token: '[BENEFICIARY]',
-    regex: /\b(?:Beneficiary|Member|Policy|Subscriber)\s*(?:No\.?|Number|ID|#)[\s:#]*[A-Z0-9\-]{6,20}\b/gi,
+    regex: /\b(?:Beneficiary|Member|Policy|Subscriber)\s*(?:No\.?|Number|ID|#)[\s:#]*[A-Z0-9-]{6,20}\b/gi,
   },
 
   // 10. Account numbers
@@ -103,7 +103,7 @@ export const PHI_PATTERNS: PhiPattern[] = [
     id: 10,
     name: 'AccountNumber',
     token: '[ACCOUNT]',
-    regex: /\b(?:Account|Acct)[\s\.]?(?:No\.?|Number|#)[\s:#]*\d{4,20}\b/gi,
+    regex: /\b(?:Account|Acct)[\s.]?(?:No\.?|Number|#)[\s:#]*\d{4,20}\b/gi,
   },
 
   // 11. Certificate / license numbers
@@ -111,7 +111,7 @@ export const PHI_PATTERNS: PhiPattern[] = [
     id: 11,
     name: 'License',
     token: '[LICENSE]',
-    regex: /\b(?:License|Certificate|Certification|Cert)[\s\.]?(?:No\.?|Number|#)[\s:#]*[A-Z0-9\-]{4,20}\b/gi,
+    regex: /\b(?:License|Certificate|Certification|Cert)[\s.]?(?:No\.?|Number|#)[\s:#]*[A-Z0-9-]{4,20}\b/gi,
   },
 
   // 12. Vehicle identifiers — VIN (17 chars), license plates
@@ -127,7 +127,7 @@ export const PHI_PATTERNS: PhiPattern[] = [
     id: 13,
     name: 'DeviceSerial',
     token: '[DEVICE]',
-    regex: /\b(?:Serial|Device)[\s\.]?(?:No\.?|Number|ID|#)[\s:#]*[A-Z0-9\-]{6,24}\b/gi,
+    regex: /\b(?:Serial|Device)[\s.]?(?:No\.?|Number|ID|#)[\s:#]*[A-Z0-9-]{6,24}\b/gi,
   },
 
   // 14. Web URLs
@@ -144,7 +144,7 @@ export const PHI_PATTERNS: PhiPattern[] = [
     name: 'IPAddress',
     token: '[IP]',
     regex:
-      /\b(?:(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\b|(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}\b/g,
+      /\b(?:\d{1,3}\.){3}\d{1,3}\b|(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}\b/g,
   },
 
   // 16. Biometric identifiers (fingerprint, voiceprint descriptors in text)
@@ -160,7 +160,7 @@ export const PHI_PATTERNS: PhiPattern[] = [
     id: 17,
     name: 'PhotoReference',
     token: '[PHOTO]',
-    regex: /\b(?:photo|image|picture)[\s\-_](?:of|patient)[\s\-_][A-Z0-9_\-\.]{4,}\b/gi,
+    regex: /\b(?:photo|image|picture)[\s_-](?:of|patient)[\s_-][A-Z0-9_.-]{4,}\b/gi,
   },
 
   // 18. Other unique identifiers — NPI, DEA, generic ID patterns

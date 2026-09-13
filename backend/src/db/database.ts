@@ -4,10 +4,10 @@
  */
 
 import Database from 'better-sqlite3';
-import fs from 'fs';
-import path from 'path';
-import crypto from 'crypto';
-import { fileURLToPath } from 'url';
+import fs from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
+import { fileURLToPath } from 'node:url';
 import { Criterion, CriterionType } from '../domain/types.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

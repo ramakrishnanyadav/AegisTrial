@@ -5,9 +5,9 @@
  * Computes actual metrics and outputs real results to backend/benchmark.json.
  */
 
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { redactAndValidate } from '../src/phi/phiPipeline.js';
 import { resolveAllEvidence } from '../src/engine/evidenceResolver.js';
 import { evaluateCriterion, computeVerdict } from '../src/engine/ruleEngine.js';
@@ -226,7 +226,7 @@ export async function runBenchmark(): Promise<{
     }
 
     // 3. Rule Engine Execution
-    let verdict: VerificationVerdict = 'REQUIRES_HUMAN_REVIEW';
+    let verdict: VerificationVerdict;
     if (c.id === 'PAT-008') {
       verdict = computeVerdict([]);
     } else {
@@ -282,5 +282,5 @@ export async function runBenchmark(): Promise<{
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
-  runBenchmark();
+  await runBenchmark();
 }

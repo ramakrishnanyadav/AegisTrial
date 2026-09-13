@@ -58,6 +58,24 @@ function runTier1(text: string): { redacted: string; log: TierLog } {
   return { redacted: result, log: { tier: 1, count, types } };
 }
 
+function replaceEntities(
+  text: string,
+  entities: string[],
+  token: string,
+): { redacted: string; count: number } {
+  let result = text;
+  let count = 0;
+
+  for (const entity of entities) {
+    if (entity.trim().length > 1 && result.includes(entity)) {
+      result = result.split(entity).join(token);
+      count++;
+    }
+  }
+
+  return { redacted: result, count };
+}
+
 // ---------------------------------------------------------------------------
 // Tier 2: NER (compromise.js, pure JS)
 // ---------------------------------------------------------------------------
@@ -86,28 +104,19 @@ async function runTier2(text: string): Promise<{ redacted: string; log: TierLog 
   let count = 0;
   const types: string[] = [];
 
-  for (const name of names) {
-    if (name.trim().length > 1 && result.includes(name)) {
-      result = result.split(name).join('[NAME]');
-      count++;
-    }
-  }
+  const pRes = replaceEntities(result, names, '[NAME]');
+  result = pRes.redacted;
+  count += pRes.count;
   if (names.length > 0) types.push('NER_PERSON');
 
-  for (const org of orgs) {
-    if (org.trim().length > 1 && result.includes(org)) {
-      result = result.split(org).join('[ORG]');
-      count++;
-    }
-  }
+  const oRes = replaceEntities(result, orgs, '[ORG]');
+  result = oRes.redacted;
+  count += oRes.count;
   if (orgs.length > 0) types.push('NER_ORG');
 
-  for (const place of places) {
-    if (place.trim().length > 1 && result.includes(place)) {
-      result = result.split(place).join('[LOCATION]');
-      count++;
-    }
-  }
+  const plRes = replaceEntities(result, places, '[LOCATION]');
+  result = plRes.redacted;
+  count += plRes.count;
   if (places.length > 0) types.push('NER_LOCATION');
 
   return { redacted: result, log: { tier: 2, count, types } };
